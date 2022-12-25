@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<style>
+    table,
+    th,
+    td {
+        border: 1px solid black;
+    }
+
+    .btn {
+        color: #5b76ea;
+        border: 1px solid gray;
+        width: 93px;
+        cursor: pointer;
+        background: blue;
+        color: white;
+        padding: 6px;
+    }
+
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td,
+    th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+
+<body>
+
+    <h2>Angle Broking</h2>
+
+
+    <div>
+        <p class="btn" onclick="location.reload()">Refresh</p></a>
+        <div onclick="handleApCall()">
+            <input id="baseURL" style="display: none;" value="<%= payload.baseURl  %>" />
+            <label for="lname">Enter OTP:</label>
+            <input type="text" id="txtotp" name="otp" placeholder="OTP"><br><br>
+            <p class="btn">Initial setup</p>
+        </div>
+        <p class="btn" onclick="getAllPlaceOrder()">Get All Order</p></a>
+        <table style="width:100%" id="tbl_result">
+
+
+
+        </table>
+
+
+        <script>
+            function popUpPayload(stockId) {
+                const data = {
+                    "name": stockId,
+                    "age": 12
+                }
+                alert(JSON.stringify(data))
+            }
+            function getAllPlaceOrder() {
+                const tarDom = $('#tbl_result')
+
+
+                const baseURL = $('#baseURL').val();
+                const jwtToken = localStorage.getItem("jwtToken");
+                const refreshToken = localStorage.getItem("refreshToken");
+                console.log("refreash token", refreshToken);
+                fetch(`${baseURL}order/getOrders`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                        {
+                            "refreshToken": jwtToken,
+                            "token": jwtToken
+                        })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+//                         response = { status : {
+// "status":true,
+// "message":"SUCCESS",
+// "errorcode":"",
+// "data":[{
+// "exchange":"NSE",
+// "producttype":"DELIVERY",
+// "tradingsymbol":"ITC-EQ",
+// "instrumenttype":"",
+// "symbolgroup":"EQ",
+// "strikeprice":"-1",
+// "optiontype":"",
+// "expirydate":"",
+// "marketlot":"1",
+// "precision":"2",
+// "multiplier":"-1",
+// "tradevalue":"175.00",
+// "transactiontype":"BUY",
+// "fillprice":"175.00",
+// "fillsize":"1",
+// "orderid":"201020000000095",
+// "fillid":"50005750",
+// "filltime":"13:27:53",
+//  }]
+// }}
+                        const data = response.status.data
+                        const status = response.status.status
+                        // console.log(status);
+                        if (status && data != null) {
+                           
+                            let dom = '';
+                            dom += `  <tr>
+                            <th>exchange</th>
+                            <th>Trade Type</th>
+                            <th>Syb</th>
+                            <th>Buy</th>
+                            <th>Buy/Sell</th>
+                            <th>Qunt</th>
+                            <th>OrderId</th>
+                          </tr>`
+                            data.map((it, idx) => {
+                                dom += ` <tr onclick="popUpPayload(${it})">
+                              <td>${it.producttype =="DELIVERY"?"Norm":"Intrady"}</td>
+                              <td>${it.exchange}</td>
+                              <td>${it.tradingsymbol}</td>
+                              <td>${it.tradevalue}</td>
+                              <td>${it.transactiontype}</td>
+                              <td>${it.marketlot}</td>
+                              <td>${it.orderid}</td>
+
+                            </tr>`
+                            })
+
+
+                            tarDom.append(dom)
+
+                        }
+                    })
+
+
+            }
+            function handleApCall() {
+                const domOTp = $('#txtotp')
+                if (domOTp.val() == '') return null
+                const baseURL = $('#baseURL').val();
+                fetch(`${baseURL}order/setUpAlog`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "otp": domOTp.val() })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        console.log(response);
+                        const status = response.status.status
+                        if (!status) {
+                            alert("failed")
+                        }
+                        else {
+                            const { jwtToken, refreshToken } = response.status.data
+                            localStorage.setItem("jwtToken", jwtToken);
+                            localStorage.setItem("refreshToken", refreshToken);
+                            alert("success")
+                            domOTp.val('')
+                        }
+                    })
+
+
+            }
+            window.addEventListener('DOMContentLoaded', (event) => {
+                getAllPlaceOrder();
+            })
+        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+</body>
+
+</html>
