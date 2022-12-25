@@ -6,6 +6,7 @@ const moment = require("moment");
 const csv = require("csvtojson");
 let { SmartAPI, WebSocket } = require("smartapi-javascript");
 const { authenticator } = require('otplib');
+const stockList = require("../csv/data");
 const API_KEY = "Q1TIE8hH"
 const testDebug = false;
 // const get = require('lodash.get')
@@ -58,9 +59,10 @@ const VPBasedStretegy = async (data) => {
       lower: lastPrice - limit,
     };
     dlog("upperlimit  ", upperLimitNdLower);
+    //change to buy to sell for buy >
     const dataFilteredWithLimit = data.filter(
       (item) =>
-        item.close > item.open &&
+        item.close < item.open &&
         item.close >= upperLimitNdLower.lower &&
         item.close <= upperLimitNdLower.upper
     );
@@ -136,7 +138,7 @@ const fetchSymbolData = (symbol = "AAPL") => {
 module.exports = {
   getOrders: (req, res) => {
     // const symbols = ["DRREDDY.NS","AAPL","KRBL","KRBL.NS","GESHIP.NS","RBLBANK.NS"];
-    const symbols = ["HDFCBANK.NS"];
+    const symbols = stockList
 
     Promise.allSettled(symbols.map((d) => fetchSymbolData(d))).then(
       (resulArr) => {

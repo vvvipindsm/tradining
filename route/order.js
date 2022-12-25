@@ -4,7 +4,7 @@ const router = express.Router();
 
 const order = require("../model/order");
 
-router.get("/getOrder", authMiddle, order.getOrders);
+router.get("/getVolstregry", authMiddle, order.getOrders);
 
 router.get("/setUpFile", order.setUpFile);
 router.post("/setUpAlog", authMiddle, order.setUpAlog);
