@@ -11,6 +11,7 @@ const API_KEY = "Q1TIE8hH"
 const testDebug = false;
 // const get = require('lodash.get')
 // const start_data = '2000-01-01';
+const Instrument = require('../localData/Instrument')
 const start_data = "2022-06-01";
 const end_date = moment().format("YYYY-MM-DD");
 const timeF = "d"; //'w' , 'm'
@@ -24,7 +25,7 @@ const setUpperNdLowerLimit = (currentPrice) => {
   const limit = (currentPrice * limitPer) / 100;
   return limit;
 };
-const INTEVAL_TIME = 1
+const INTEVAL_TIME = 10000
 
 const rounding = (lastPrice) => {
   let splitAr = lastPrice.toString().split(".");
@@ -107,6 +108,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 const fetchSymbolData = (symbol = "AAPL") => {
   return new Promise(async (resolve, reject) => {
+    console.log(symbol);
     try {
       await sleep(INTEVAL_TIME)
       yahooFinance.historical(
@@ -118,10 +120,17 @@ const fetchSymbolData = (symbol = "AAPL") => {
         },
         async (err, quotes) => {
           if (err) {
+            console.log("error",err);
             reject(false);
           } else {
+            console.log(quotes);
             dlog("fetch from yfina", quotes.length);
             if (quotes.length == 0) reject(false);
+            console.log(get(quotes,'[0].close',false));
+            if(!get(quotes,'[0].close',false)) {
+              reject(false)
+              return
+            }
             const { res, lastPrice } = await VPBasedStretegy(quotes);
             dlog("root responsed after VP str");
             resolve({ res, symbol, lastPrice });
@@ -136,7 +145,32 @@ const fetchSymbolData = (symbol = "AAPL") => {
 };
 
 module.exports = {
-  getOrders: (req, res) => {
+  takeOrder :async (req,res)=>{
+    const {refreshToken ,token } = req.body;
+       
+    let smart_api = new SmartAPI({
+      api_key: API_KEY,
+      access_token : token,
+      refresh_token : refreshToken
+    });
+    const result = await smart_api.placeOrder({
+      "variety":"NORMAL",
+      "tradingsymbol":"SBIN-EQ",
+      "symboltoken":"3045",
+      "transactiontype":"BUY",
+      "exchange":"NSE",
+      "ordertype":"MARKET",
+      "producttype":"INTRADAY",
+      "duration":"DAY",
+      "price":"194.50",
+      "squareoff":"0",
+      "stoploss":"0",
+      "quantity":"50"
+    })
+    console.log(result);
+    res.send({status : result})
+  },
+  getVolstregry: (req, res) => {
     // const symbols = ["DRREDDY.NS","AAPL","KRBL","KRBL.NS","GESHIP.NS","RBLBANK.NS"];
     const symbols = stockList
 
@@ -183,7 +217,8 @@ module.exports = {
     const {otp} = req.body
     const CLIENT_CODE = "V154772"
     const API_KEY = "Q1TIE8hH"
-    const CLIENT_PASS = env.PASSWORD
+    const CLIENT_PASS = process.env.PASSWORD
+    console.log(CLIENT_PASS);
     let smart_api = new SmartAPI({
       api_key: API_KEY
     });
@@ -210,5 +245,16 @@ module.exports = {
       baseURl: 'http://localhost:3000/api/',
     }
       res.render(path.join(__dirname,'../templates/dashboard'),{payload})
+  },
+  placeOrder: async (req,res)=> {
+    // {"token":"11983","symbol":"SASKEN-EQ",
+    // "name":"SASKEN","expiry":"","strike":"-1.000000",
+    // "lotsize":"1","instrumenttype":"","exch_seg":"NSE",
+    // "tick_size":"5.000000"}
+    const payload = {
+      baseURl: 'http://localhost:3000/api/',
+      Instrument : Instrument.Instrument
+    }
+    res.render(path.join(__dirname,'../templates/placeOrder'),{payload})
   }
 };

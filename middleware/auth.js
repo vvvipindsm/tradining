@@ -4,6 +4,7 @@ const KiteConnect = require("kiteconnect").KiteConnect;
 
 module.exports = {
   authMiddle: (req, res, next) => {
+    res.set('ngrok-skip-browser-warning', 'test');
     // console.log("accessKeyFile.data", accessKeyFile.data);
     // const kc = KiteConnect((api_keys = keys.api_key));
     // kc.set_access_token(accessKeyFile.data);
