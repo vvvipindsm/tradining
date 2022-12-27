@@ -146,27 +146,32 @@ const fetchSymbolData = (symbol = "AAPL") => {
 
 module.exports = {
   takeOrder :async (req,res)=>{
-    const {refreshToken ,token } = req.body;
+    const {refreshToken ,token,
+      tradingsymbol,
+      symboltoken,transactiontype,exchange,
+      producttype,quantity,price } = req.body;
        
     let smart_api = new SmartAPI({
       api_key: API_KEY,
       access_token : token,
       refresh_token : refreshToken
     });
-    const result = await smart_api.placeOrder({
+    const parms = {
       "variety":"NORMAL",
-      "tradingsymbol":"SBIN-EQ",
-      "symboltoken":"3045",
-      "transactiontype":"BUY",
-      "exchange":"NSE",
+      "tradingsymbol":tradingsymbol,
+      "symboltoken":symboltoken,
+      "transactiontype":transactiontype, //"BUY"
+      "exchange":exchange,
       "ordertype":"MARKET",
-      "producttype":"INTRADAY",
+      "producttype":producttype,//"INTRADAY",
       "duration":"DAY",
-      "price":"194.50",
+      // "price":"194.50",
       "squareoff":"0",
       "stoploss":"0",
-      "quantity":"50"
-    })
+      "quantity":quantity,//"50"
+    }
+    console.log(parms);
+    const result = await smart_api.placeOrder(parms)
     console.log(result);
     res.send({status : result})
   },
@@ -218,7 +223,7 @@ module.exports = {
     const CLIENT_CODE = "V154772"
     const API_KEY = "Q1TIE8hH"
     const CLIENT_PASS = process.env.PASSWORD
-    console.log(CLIENT_PASS);
+
     let smart_api = new SmartAPI({
       api_key: API_KEY
     });

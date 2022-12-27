@@ -49,7 +49,7 @@
             <p class="btn">Initial setup</p>
         </div>
         <p class="btn" onclick="getAllPlaceOrder()">Get All Order</p></a>
-        <a href="<%= payload.baseURl  %>order/placeOrder" >
+        <a href="<%= payload.baseURl  %>order/placeOrder">
             Place Order
         </a>
         <table style="width:100%" id="tbl_result">
@@ -75,7 +75,7 @@
                 const jwtToken = localStorage.getItem("jwtToken");
                 const refreshToken = localStorage.getItem("refreshToken");
                 console.log("refreash token", refreshToken);
-                fetch(`${baseURL}order/getOrders`, {
+                fetch(`${baseURL}order/getOrder`, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
@@ -89,36 +89,38 @@
                 })
                     .then(response => response.json())
                     .then(response => {
-//                         response = { status : {
-// "status":true,
-// "message":"SUCCESS",
-// "errorcode":"",
-// "data":[{
-// "exchange":"NSE",
-// "producttype":"DELIVERY",
-// "tradingsymbol":"ITC-EQ",
-// "instrumenttype":"",
-// "symbolgroup":"EQ",
-// "strikeprice":"-1",
-// "optiontype":"",
-// "expirydate":"",
-// "marketlot":"1",
-// "precision":"2",
-// "multiplier":"-1",
-// "tradevalue":"175.00",
-// "transactiontype":"BUY",
-// "fillprice":"175.00",
-// "fillsize":"1",
-// "orderid":"201020000000095",
-// "fillid":"50005750",
-// "filltime":"13:27:53",
-//  }]
-// }}
+                        response = {
+                            status: {
+                                "status": true,
+                                "message": "SUCCESS",
+                                "errorcode": "",
+                                "data": [{
+                                    "exchange": "NSE",
+                                    "producttype": "DELIVERY",
+                                    "tradingsymbol": "ITC-EQ",
+                                    "instrumenttype": "",
+                                    "symbolgroup": "EQ",
+                                    "strikeprice": "-1",
+                                    "optiontype": "",
+                                    "expirydate": "",
+                                    "marketlot": "1",
+                                    "precision": "2",
+                                    "multiplier": "-1",
+                                    "tradevalue": "175.00",
+                                    "transactiontype": "BUY",
+                                    "fillprice": "175.00",
+                                    "fillsize": "1",
+                                    "orderid": "201020000000095",
+                                    "fillid": "50005750",
+                                    "filltime": "13:27:53",
+                                }]
+                            }
+                        }
                         const data = response.status.data
                         const status = response.status.status
                         // console.log(status);
                         if (status && data != null) {
-                           
+
                             let dom = '';
                             dom += `  <tr>
                             <th>exchange</th>
@@ -131,7 +133,7 @@
                           </tr>`
                             data.map((it, idx) => {
                                 dom += ` <tr onclick="popUpPayload(${it})">
-                              <td>${it.producttype =="DELIVERY"?"Norm":"Intrady"}</td>
+                              <td>${it.producttype == "DELIVERY" ? "Norm" : "Intrady"}</td>
                               <td>${it.exchange}</td>
                               <td>${it.tradingsymbol}</td>
                               <td>${it.tradevalue}</td>

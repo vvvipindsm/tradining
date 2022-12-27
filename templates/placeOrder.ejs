@@ -107,13 +107,13 @@
             Goto dashboard
         </a>
         <select name="typeofOrder" id="typeofOrder">
-            <option value="Intreday">Intreday</option>
-            <option value="Delivery">Delivery</option>
+            <option value="INTRADAY">Intreday</option>
+            <option value="DELIVERY">Delivery</option>
            
           </select>
 
           <select name="sellOrBuy" id="sellOrBuy">
-            <option value="Sell">Sell</option>
+            <option value="SELL">Sell</option>
             <option value="Buy">Buy</option>
            
           </select>
@@ -126,7 +126,7 @@
                 <input type="text" placeholder="Search.." id="myInput" onkeyup="filterFunction()">
                 
                 <% for (var i = 0; i < payload.Instrument.length; i++) { %>
-                  <a onclick="alert('asdf')"> <%= payload.Instrument[i].symbol %></a>
+                  <a onclick="popUpPayload('<%= payload.Instrument[i].token %>','<%= payload.Instrument[i].symbol %>','<%= payload.Instrument[i].exch_seg %>') "> <%= payload.Instrument[i].symbol %></a>
                 <% } %>
               
             </div>
@@ -139,12 +139,26 @@
 
 
         <script>
-            function popUpPayload(stockId) {
-                const data = {
-                    "name": stockId,
-                    "age": 12
+            function popUpPayload(token,symbol,exchange) {
+                const producttype = $('#typeofOrder').val()
+                const transactiontype = $('#sellOrBuy').val()
+                console.log(token,symbol,exchange);
+                const params = {
+                    tradingsymbol :symbol,
+                   symboltoken : token,
+                   transactiontype: "BUY",
+                   exchange : exchange,
+                   producttype,
+                   quantity : "500",
+                   price  :""
                 }
-                alert(JSON.stringify(data))
+                
+    //             tradingsymbol,
+    //   symboltoken,transactiontype,exchange,
+    //   producttype,quantity,price
+               
+                console.log('stockId');
+                alert(JSON.stringify(params))
             }
             function getAllPlaceOrder() {
                 const tarDom = $('#tbl_result')
@@ -165,7 +179,7 @@
                             "refreshToken": jwtToken,
                             "token": jwtToken
                         })
-                })
+                    })
                     .then(response => response.json())
                     .then(response => {
 
