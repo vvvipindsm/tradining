@@ -63,7 +63,7 @@ const VPBasedStretegy = async (data) => {
     //change to buy to sell for buy >
     const dataFilteredWithLimit = data.filter(
       (item) =>
-        item.close < item.open &&
+        item.close > item.open &&
         item.close >= upperLimitNdLower.lower &&
         item.close <= upperLimitNdLower.upper
     );
@@ -176,8 +176,8 @@ module.exports = {
     res.send({status : result})
   },
   getVolstregry: (req, res) => {
-    // const symbols = ["DRREDDY.NS","AAPL","KRBL","KRBL.NS","GESHIP.NS","RBLBANK.NS"];
-    const symbols = stockList
+    const symbols = ["DRREDDY.NS","AAPL","KRBL","KRBL.NS","GESHIP.NS","RBLBANK.NS"];
+    // const symbols = stockList
 
     Promise.allSettled(symbols.map((d) => fetchSymbolData(d))).then(
       (resulArr) => {
