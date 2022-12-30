@@ -71,6 +71,30 @@ exports.resetAll = (req, res) => {
     });
 };
 
+exports.findALL = (req, res) => {
+  
+  const condition = { 
+    [Op.and]: [
+      {createdAt: {[Op.gte]: moment().startOf('day').subtract(3, 'days').toDate()}  },
+
+    ]};
+
+  Trades.findAll({ where: condition, order: [
+    ['id', 'DESC']
+  ] })
+    .then(data => {
+      res.send(data
+      
+        );
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving tutorials."
+      });
+    });
+};
+
 exports.find = (req, res) => {
   const title = req.query.sybmol;
   const condition = title ? { 

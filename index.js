@@ -6,6 +6,7 @@ const cors = require("cors");
 const db = require("./models");
 const order_route = require("./route/order");
 const tutorial_route = require("./route/tutorial");
+const stockPicks = require("./route/stockPicks");
 const trades_route = require("./route/trade");
 const express = require("express");
 const bodyparser = require("body-parser");
@@ -19,8 +20,9 @@ app.use(cors());
 app.use(bodyparser.urlencoded({extended:false}))
 app.use(bodyparser.json())
 app.use("/api/order", order_route);
-app.use("/api/tutorial_route", tutorial_route);
+app.use("/api/t", tutorial_route);
 app.use("/api/trades", trades_route);
+app.use("/api/stock_pickes", stockPicks);
 app.set('view engine', 'ejs')
 
 
@@ -31,4 +33,4 @@ app.set('view engine', 'ejs')
 //   .catch((err) => {
 //     console.log("Failed to sync db: " + err.message);
 //   });
-app.listen(3000, () => console.log(`Example app listening on port 3000!`));
+app.listen(3000,() => console.log(`Example app listening on port 3000!`));
