@@ -5,6 +5,15 @@ module.exports = (sequelize, Sequelize) => {
       },
       typeoftrade: {
         type: Sequelize.STRING
+      },
+      orderId: {
+        type: Sequelize.STRING
+      },
+      token: {
+        type: Sequelize.STRING
+      },
+      isCompleted: {
+        type: Sequelize.BOOLEAN
       }
     });
   
