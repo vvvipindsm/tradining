@@ -32,6 +32,8 @@ const setUpperNdLowerLimit = (currentPrice) => {
 const INTEVAL_TIME = 10000;
 const PLACEORDERTYPE = "SELL";
 const SEQUREOFFTYPE = "BUY";
+const PRODUCTTYPE = "INTRADAY"
+
 const rounding = (lastPrice) => {
   let splitAr = lastPrice.toString().split(".");
 
@@ -217,7 +219,6 @@ module.exports = {
       tradingsymbol,
       transactiontype,
       exchange,
-      producttype,
       price,
     } = req.body;
     const quantity = Math.round(process.env.FUND / price);
@@ -291,7 +292,7 @@ module.exports = {
 
     // const tradingParams = {
     //   sybol: tradingsymbol,
-    //   typeoforder: transactiontype,
+    //   typeoforder: PRODUCTTYPE,
     //   orderId: "1231derr",
     //   token: tokenID.token,
     // };
@@ -307,7 +308,7 @@ module.exports = {
     //   "transactiontype":transactiontype, //"BUY"
     //   "exchange":exchange,
     //   "ordertype":"MARKET",
-    //   "producttype":producttype,//"INTRADAY",
+    //   "producttype":PRODUCTTYPE,//"INTRADAY",
     //   "duration":"DAY",
     //   // "price":"194.50",
     //   "squareoff":"0",

@@ -56,9 +56,28 @@ exports.create = (req, res) => {
 // };
 
 exports.resetAll = (req, res) => {
+  const resetType = req.query.resetType
+  console.log(resetType);
+  Trades.destroy({
+    where: { isCompleted : true },
+    // truncate: false
+  })
+    .then(nums => {
+      res.send({ message: `${nums} Tutorials were deleted successfully!` });
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while removing all tutorials."
+      });
+    });
+};
+exports.resetActive = (req, res) => {
+  const resetType = req.query.resetType
+ console.log("delte");
   Trades.destroy({
     where: {},
-    truncate: false
+    truncate: true
   })
     .then(nums => {
       res.send({ message: `${nums} Tutorials were deleted successfully!` });
@@ -71,11 +90,13 @@ exports.resetAll = (req, res) => {
     });
 };
 
+
 exports.findALL = (req, res) => {
   
   const condition = { 
     [Op.and]: [
-      {createdAt: {[Op.gte]: moment().startOf('day').subtract(3, 'days').toDate()}  },
+      { isCompleted : false}
+      // {createdAt: {[Op.gte]: moment().startOf('day').subtract(3, 'days').toDate()}  },
 
     ]};
 
