@@ -22,5 +22,6 @@ db.sequelize = sequelize;
 db.tutorials = require("./tutorial.model.js")(sequelize, Sequelize);
 db.trades = require("./trade.model.js")(sequelize, Sequelize);
 db.stockpicks = require("./stockpick.model.js")(sequelize, Sequelize);
+db.tradeHis = require("./trade_hist.model.js")(sequelize, Sequelize);
 
 module.exports = db;
