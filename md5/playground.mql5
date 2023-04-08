@@ -1,0 +1,110 @@
+#include <Trade/Trade.mqh>
+
+
+
+#property copyright "Copyright 2023, MetaQuotes Ltd."
+#property link      "https://www.mql5.com"
+#property version   "1.00"
+#define KEY_NUMPAD_5       12
+#define KEY_LEFT           37
+#define KEY_UP             38
+#define KEY_RIGHT          39
+#define KEY_DOWN           40
+#define KEY_NUMLOCK_DOWN   98
+#define KEY_NUMLOCK_LEFT  100
+#define KEY_NUMLOCK_5     101
+#define KEY_NUMLOCK_RIGHT 102
+#define KEY_NUMLOCK_UP    104
+CTrade trade;
+int count = 1;
+input int dd = 1;
+int globalva = 0;
+
+int OnInit()
+  {
+   return(INIT_SUCCEEDED);
+  }
+
+void OnDeinit(const int reason)
+  {
+
+   
+  }
+
+void OnTick()
+  {
+    double lastBarClose[11];
+
+    double s = CopyClose(_Symbol,_Period,0,10,lastBarClose);
+    Comment("d",s);
+    if(count == 1) {
+        count = 2;
+       // trade.Buy(0.1);
+    }
+
+    Comment("global value",globalva,"input value",dd);
+
+  }
+//+------------------------------------------------------------------+
+//| Trade function                                                   |
+//+------------------------------------------------------------------+
+void OnTrade()
+  {
+//---
+ //  Comment("Trade invoke");
+   //Print("Trade happed");
+  }
+//+------------------------------------------------------------------+
+//| ChartEvent function                                              |
+//+------------------------------------------------------------------+
+void OnChartEvent(const int id,
+                  const long &lparam,
+                  const double &dparam,
+                  const string &sparam)
+  {
+  if(id==CHARTEVENT_KEYDOWN)
+     {
+      switch((int)lparam)
+        {
+         case 65:{ 
+               int status = MessageBox("Do you want start hedging","subheader",1);
+               if(status == 1) {
+                  //Comment("Invoke trader");
+                  globalva = globalva + 1;
+                  MessageBox("Succesfully start hedging","",0);
+               }
+               
+               break;
+         }
+         default: Comment("Pressed unlisted key");
+        }
+    }
+  // int mouse_x=(int)lparam;
+   //int mouse_y=(int)dparam;
+   //datetime obj_time;
+   //double obj_price;
+   //int sub_window;
+   //omment("click code",id);
+   //if(id==CHARTEVENT_CLICK) {
+      //Comment("hitted chart click :",lparam," : ",dparam,":",sparam);
+      //if(ChartXYToTimePrice(0,mouse_x,mouse_y,sub_window,obj_time,obj_price)) {
+          //Comment("Mouse click coordinates on a chart: x = ",sub_window,"  y = ",mouse_x,":",obj_price);
+        //  ObjectCreate(0,"Upper line",OBJ_HLINE,0,0,obj_price);
+      //}
+     //}
+     
+    
+   //if(id==CHARTEVENT_OBJECT_DRAG){
+   // if(ChartXYToTimePrice(0,mouse_x,mouse_y,sub_window,obj_time,obj_price)) {
+      //Comment("Chnaged object",obj_price);
+     //}
+     // Print("Changing anchor points of object named ",sparam);
+     //--- changed a text in the input field of the Edit graphical object
+   //}
+   
+  
+         
+   
+  }
+  
+
