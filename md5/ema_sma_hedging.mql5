@@ -1,0 +1,277 @@
+//+------------------------------------------------------------------+
+//|                                                      ProjectName |
+//|                                      Copyright 2020, CompanyName |
+//|                                       http://www.companyname.net |
+//+------------------------------------------------------------------+
+
+#include <Trade/Trade.mqh>
+
+
+input double LotsMultiplier = 2;
+input double Lots = 0.01;
+input int TimeStartHour = 8;
+input int TimeStartMMin = 0;
+ulong DistancePoints = 1000;
+double upperLine, lowerLine,tpupperLine,tplowerLine;
+int flagOne = 0;
+int flagTwo = 0;
+int uptrendStatus = 0;
+int downTrandStatus = 0;
+int tradeDirtion = 0;
+int angleDeg = 15;
+CTrade trade;
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+int OnInit()
+  {
+//  Comment("Hedging");
+   return(INIT_SUCCEEDED);
+  }
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+
+
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+   double bid = SymbolInfoDouble(_Symbol,SYMBOL_BID); //highest price a buyer will pay to "BUY"   FOR SELL
+//  double ask =  SymbolInfoDouble(_Symbol,SYMBOL_ASK); // lowest price a seller will pay to "SELL"  FOR BUY
+   double myMovingAvgArray[];
+
+   int movingAVGDfn = iMA(_Symbol,_Period,3,0,MODE_SMA,PRICE_CLOSE);
+
+   ArraySetAsSeries(myMovingAvgArray,true);
+   CopyBuffer(movingAVGDfn,0,0,10,myMovingAvgArray);
+   double sma3 = myMovingAvgArray[0];
+
+//ema started
+   double myEMAArray[];
+   int movingEMADfn = iMA(_Symbol,_Period,9,0,MODE_EMA,PRICE_CLOSE);
+
+   ArraySetAsSeries(myEMAArray,true);
+   CopyBuffer(movingEMADfn,0,0,10,myEMAArray);
+   double ema9 = myEMAArray[0];
+
+//wma stated
+   double myWMAArray[];
+   int movingWMAfn = iMA(_Symbol,_Period,7,0,MODE_LWMA,PRICE_CLOSE);
+
+   ArraySetAsSeries(myWMAArray,true);
+   CopyBuffer(movingWMAfn,0,0,10,myWMAArray);
+   double wma7 = myWMAArray[0];
+
+//wma rsi
+   double myRSIArray[];
+//int movingRSIfn = iRSI(_Symbol,PERIOD_H1,14,PRICE_CLOSE);
+
+   int movingRSIfn = iRSI(_Symbol,PERIOD_H1,14,PRICE_CLOSE);
+
+
+   double diffWMASMA[10];
+   double changeRateOfWMASMA[10];
+//ArraySetAsSeries(diffWMASMA,true);
+// CopyBuffer((movingWMAfn - movingAVGDfn),0,0,2,diffWMASMA);
+   diffWMASMA[0] = myWMAArray[0] - myMovingAvgArray[0];
+   diffWMASMA[1] = myWMAArray[1] - myMovingAvgArray[1];
+   diffWMASMA[2] = myWMAArray[2] - myMovingAvgArray[2];
+   diffWMASMA[3] = myWMAArray[3] - myMovingAvgArray[3];
+   diffWMASMA[4] = myWMAArray[4] - myMovingAvgArray[4];
+   diffWMASMA[5] = myWMAArray[5] - myMovingAvgArray[5];
+   diffWMASMA[6] = myWMAArray[6] - myMovingAvgArray[6];
+   diffWMASMA[7] = myWMAArray[7] - myMovingAvgArray[7];
+   diffWMASMA[8] = myWMAArray[8] - myMovingAvgArray[8];
+   diffWMASMA[9] = myWMAArray[9] - myMovingAvgArray[9];
+
+   changeRateOfWMASMA[0] = diffWMASMA[9] -diffWMASMA[8];
+   changeRateOfWMASMA[1] = diffWMASMA[8] -diffWMASMA[7];
+   changeRateOfWMASMA[2] = diffWMASMA[7] -diffWMASMA[6];
+   changeRateOfWMASMA[3] = diffWMASMA[6] -diffWMASMA[5];
+   changeRateOfWMASMA[4] = diffWMASMA[5] -diffWMASMA[4];
+   changeRateOfWMASMA[5] = diffWMASMA[4] -diffWMASMA[3];
+   changeRateOfWMASMA[6] = diffWMASMA[3] -diffWMASMA[2];
+   changeRateOfWMASMA[7] = diffWMASMA[2] -diffWMASMA[1];
+   changeRateOfWMASMA[8] = diffWMASMA[1] -diffWMASMA[0];
+   double slopeEquationY = changeRateOfWMASMA[0] - changeRateOfWMASMA[8];
+   double angleSlop = MathAbs(MathTan(slopeEquationY / 9)*100);
+
+   double diffEMASMA[10];
+   double changeRateOfEMASMA[10];
+//ArraySetAsSeries(diffEMASMA,true);
+// CopyBuffer((movingWMAfn - movingAVGDfn),0,0,2,diffEMASMA);
+   diffEMASMA[0] = myEMAArray[0] - myMovingAvgArray[0];
+   diffEMASMA[1] = myEMAArray[1] - myMovingAvgArray[1];
+   diffEMASMA[2] = myEMAArray[2] - myMovingAvgArray[2];
+   diffEMASMA[3] = myEMAArray[3] - myMovingAvgArray[3];
+   diffEMASMA[4] = myEMAArray[4] - myMovingAvgArray[4];
+   diffEMASMA[5] = myEMAArray[5] - myMovingAvgArray[5];
+   diffEMASMA[6] = myEMAArray[6] - myMovingAvgArray[6];
+   diffEMASMA[7] = myEMAArray[7] - myMovingAvgArray[7];
+   diffEMASMA[8] = myEMAArray[8] - myMovingAvgArray[8];
+   diffEMASMA[9] = myEMAArray[9] - myMovingAvgArray[9];
+
+   changeRateOfEMASMA[0] = diffEMASMA[9] -diffEMASMA[8];
+   changeRateOfEMASMA[1] = diffEMASMA[8] -diffEMASMA[7];
+   changeRateOfEMASMA[2] = diffEMASMA[7] -diffEMASMA[6];
+   changeRateOfEMASMA[3] = diffEMASMA[6] -diffEMASMA[5];
+   changeRateOfEMASMA[4] = diffEMASMA[5] -diffEMASMA[4];
+   changeRateOfEMASMA[5] = diffEMASMA[4] -diffEMASMA[3];
+   changeRateOfEMASMA[6] = diffEMASMA[3] -diffEMASMA[2];
+   changeRateOfEMASMA[7] = diffEMASMA[2] -diffEMASMA[1];
+   changeRateOfEMASMA[8] = diffEMASMA[1] -diffEMASMA[0];
+   double slopeEquationYEMA = changeRateOfEMASMA[0] - changeRateOfEMASMA[8];
+   double angleSlopEMA = MathAbs(MathTan(slopeEquationYEMA / 9)*100);
+
+
+   ArraySetAsSeries(myRSIArray,true);
+  CopyBuffer(movingRSIfn,0,0,9,myRSIArray);
+  double myRSIAVal = myRSIArray[0];
+
+   ulong ticket = PositionGetTicket(0);
+     if(PositionSelectByTicket(ticket) == false)
+        {
+
+         if(myRSIAVal <= 69 && myRSIAVal >= 50)
+
+           {
+
+
+            for(int i=0; i<=8; i++)
+              {
+               if(myRSIArray[i] >= 70)
+                 {
+                  downTrandStatus = 1;
+                  uptrendStatus =0 ;
+                 }
+
+              }
+            Comment("x : ",downTrandStatus);
+
+           }
+         if(myRSIAVal >= 30  && myRSIAVal <= 49)
+
+           {
+
+
+            for(int i=0; i<=8; i++)
+              {
+               if(myRSIArray[i] <= 30)
+                 {
+                  downTrandStatus = 0;
+                  uptrendStatus =1;
+                 }
+
+              }
+            Comment("Up :",downTrandStatus);
+           }
+
+         if(1)
+           {
+            //if((wma7 < sma3) && (ema9 < sma3) &&  flagOne == 0 && downTrandStatus == 1)
+            if((wma7 < sma3) && (ema9 < sma3) && downTrandStatus == 1)
+              {
+               int sellStatus = 0;
+               if(MathAbs(wma7 - sma3) < 0.1)
+                 {
+                  if(angleSlop > angleDeg)
+                    {
+                     sellStatus = 1;
+                    }
+                 }
+               if(MathAbs(ema9 - sma3) < 0.1)
+                 {
+                  if(angleSlopEMA > angleDeg)
+                    {
+                     sellStatus = 1;
+                    }
+                 }
+               if(sellStatus== 1)
+                 {
+                  int previousDatagetTouchwithnegSell = 0;
+                  for(int r=0; r<=6; r++)
+                    {
+
+                     if(diffWMASMA[r] > 0)
+                       {
+                        previousDatagetTouchwithnegSell = 1;
+                       }
+                     if(diffEMASMA[r] > 0)
+                       {
+                        previousDatagetTouchwithnegSell = 1;
+                       }
+
+                    }
+                  if(previousDatagetTouchwithnegSell == 1)
+                    {
+                     trade.Sell(.1,NULL,0.000000,(bid + 3),(bid - 3));
+                    }
+
+
+                 }
+
+
+              }
+
+
+            if((wma7 > sma3) && (ema9 > sma3) && uptrendStatus == 1)
+              {
+               Comment("splot",angleSlop);
+               int buyStatus = 0;
+               if(MathAbs(wma7 - sma3) < 0.1)
+                 {
+                  if(angleSlop > 15)
+                    {
+                     buyStatus = 1;
+                    }
+                 }
+               if(MathAbs(ema9 - sma3) < 0.1)
+                 {
+                  if(angleSlopEMA > 15)
+                    {
+                     buyStatus = 1;
+                    }
+                 }
+               if(buyStatus == 1)
+                 {
+
+
+                  int previousDatagetTouchwithneg = 0;
+                  flagTwo = 0;
+
+                  for(int r=0; r<=6; r++)
+                    {
+
+                     if(diffWMASMA[r] < 0)
+                       {
+
+                        previousDatagetTouchwithneg = 1;
+                       }
+                     if(diffEMASMA[r] < 0)
+                       {
+
+                        previousDatagetTouchwithneg = 1;
+                       }
+
+                    }
+                  Comment("s :",previousDatagetTouchwithneg,"dd :",diffWMASMA[0],diffWMASMA[5]);
+                  if(previousDatagetTouchwithneg == 1)
+                    {
+                     trade.Buy(.1,NULL,0.000000,(bid - 3),(bid + 3));
+                    }
+                 }
+
+              }
+           }
+
+        }
+  }
+
+
