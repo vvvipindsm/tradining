@@ -1,0 +1,84 @@
+//+------------------------------------------------------------------+
+//|                                                        macdd.mq5 |
+//|                                  Copyright 2023, MetaQuotes Ltd. |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2023, MetaQuotes Ltd."
+#property link      "https://www.mql5.com"
+#property version   "1.00"
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+#include <Trade/Trade.mqh>
+
+CTrade trade;
+
+int OnInit()
+  {
+//---
+   
+//---
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+//---
+   
+  }
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+//---
+   double Ask = NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_ASK),_Digits);
+   
+   double Bid = NormalizeDouble(SymbolInfoDouble(_Symbol,SYMBOL_BID),_Digits);
+   
+   string signal = "";
+   double myPriceArray[];
+   
+   int MacDDefinition = iMACD(_Symbol,_Period,12,26,9,PRICE_CLOSE);
+   
+   CopyBuffer(MacDDefinition,0,0,3,myPriceArray);
+   
+   float MacdValue = (myPriceArray[0]);
+   
+   if(MacdValue>0)
+   signal="sell";
+   
+   if(MacdValue<0)
+   signal="buy";
+   
+   if(signal == "sell" && PositionsTotal() < 1)
+    trade.Sell(0.10,NULL,Bid,(Bid+200 * _Point),(Bid-150* _Point),NULL);
+   
+ 
+   if(signal == "buy" && PositionsTotal() < 1)
+    trade.Buy(0.10,NULL,Ask,(Ask-200 * _Point),(Ask+150 * _Point),NULL);
+   
+   
+  }
+//+------------------------------------------------------------------+
+//| Trade function                                                   |
+//+------------------------------------------------------------------+
+void OnTrade()
+  {
+//---
+   
+  }
+//+------------------------------------------------------------------+
+//| ChartEvent function                                              |
+//+------------------------------------------------------------------+
+void OnChartEvent(const int id,
+                  const long &lparam,
+                  const double &dparam,
+                  const string &sparam)
+  {
+//---
+   
+  }
+//+------------------------------------------------------------------+
