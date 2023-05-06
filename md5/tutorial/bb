@@ -1,0 +1,153 @@
+
+#include <Trade/Trade.mqh>
+input double Lots = 0.1;
+input double ClosePercent = 30;
+input double SlFactor = 2;
+input double TpFactor = 0.5;
+input ENUM_TIMEFRAMES Timeframe = PERIOD_CURRENT;
+input int Periods = 20;
+input double Deviation = 2.0;
+input ENUM_APPLIED_PRICE AppPrice = PRICE_CLOSE;
+input bool IsMaFilter = true;
+input ENUM_TIMEFRAMES MaTimeframe = PERIOD_CURRENT;
+input int MaPeriods = 200;
+input ENUM_MA_METHOD MaMethod = MODE_SMA;
+input ENUM_APPLIED_PRICE MaAppPrice = PRICE_CLOSE;
+
+int handleBb;
+int handleMa;
+int barsTotal;
+
+CTrade trade;
+
+
+int OnInit()
+  {
+   barsTotal = iBars(_Symbol, Timeframe);
+   handleBb = iBands(_Symbol, Timeframe, Periods, 0,Deviation, AppPrice);
+   handleMa = iMA(_Symbol, MaTimeframe, MaPeriods, 0, MaMethod, MaAppPrice);
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+   int bars = iBars(_Symbol, Timeframe);
+   if(barsTotal < bars)
+     {
+      barsTotal = bars;
+      double bbUpper [], bbLower [], bbMiddle [];
+
+      CopyBuffer(handleBb, BASE_LINE,1,2,bbMiddle);
+      CopyBuffer(handleBb, UPPER_BAND, 1, 2, bbUpper);
+      CopyBuffer(handleBb, LOWER_BAND,1,2,bbLower);
+      double ma[];
+      CopyBuffer(handleMa, BASE_LINE,1,1,ma);
+      double close1 = iClose(_Symbol, Timeframe, 1);
+      double close2 = iClose(_Symbol, Timeframe, 2);
+      for(int i = PositionsTotal()-1; i >= 0; i--)
+        {
+         ulong posTicket = PositionGetTicket(i);
+         if(PositionSelectByTicket(posTicket))
+           {
+            double posLots = PositionGetDouble(POSITION_VOLUME);
+            double posSl = PositionGetDouble(POSITION_SL);
+            double posTp = PositionGetDouble(POSITION_TP);
+
+            ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE) PositionGetInteger(POSITION_TYPE);
+            double lotsToClose = posLots * ClosePercent / 100;
+            lotsToClose =  NormalizeDouble(lotsToClose, 2);
+            if(posType == POSITION_TYPE_BUY)
+              {
+               if(close1> bbMiddle[0])
+                 {
+                  if(posLots == Lots)
+                    {
+                     if(trade.PositionClosePartial(posTicket, lotsToClose))
+                       {
+                        Print("pos #",posTicket," was closed partially...");
+                        posLots = Lots - lotsToClose;
+
+                       }
+                    }
+                 }
+              }
+            else
+               if(posType == POSITION_TYPE_SELL)
+                 {
+                  if(close1 < bbMiddle[0])
+                    {
+                     if(posLots == Lots)
+                       {
+                        if(trade.PositionClosePartial(posTicket,lotsToClose))
+                          {
+                           Print("Pos #",posTicket,"was closed partially");
+                           posLots = Lots - lotsToClose;
+                          }
+                       }
+                    }
+                  if(posLots < Lots)
+                    {
+                     double sl = bbUpper[1];
+                     sl = NormalizeDouble(sl,_Digits);
+                     if(sl < posSl || posSl == 0)
+                       {
+                        if(trade.PositionModify(posTicket,sl,posTp))
+                          {
+                           Print("Pos #",posTicket,"was modified");
+                          }
+                       }
+                    }
+                 }
+
+           }
+        }
+
+      double distance = bbUpper[1] - bbLower[1];
+      if(close1 > bbUpper[1] && close2 < bbUpper[0])
+        {
+
+         double bid = SymbolInfoDouble(_Symbol,SYMBOL_BID);
+         bid = NormalizeDouble(bid,_Digits);
+
+         if(!IsMaFilter || bid < ma[0])
+           {
+            double sl = bid + distance;
+            sl = NormalizeDouble(sl,_Digits);
+
+
+            double tp = bid - distance;
+            tp = NormalizeDouble(tp,_Digits);
+
+            trade.Sell(Lots,_Symbol,bid,sl,tp);
+
+           }
+        }
+      else
+         if(close1 < bbUpper[1] && close2 > bbUpper[0])
+           {
+            Print("Close is below the bblower");
+            double ask = SymbolInfoDouble(_Symbol,SYMBOL_ASK);
+            ask = NormalizeDouble(ask,_Digits);
+            if(!IsMaFilter || ask > ma[0])
+              {
+               double sl = ask - distance;
+               sl = NormalizeDouble(sl,_Digits);
+
+
+               double tp = ask + distance;
+               tp = NormalizeDouble(tp,_Digits);
+
+               trade.Buy(Lots,_Symbol,ask,sl,tp);
+              }
+           }
+     }
+  }
+//+------------------------------------------------------------------+
