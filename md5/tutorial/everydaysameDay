@@ -1,0 +1,80 @@
+//+------------------------------------------------------------------+
+//|                                                      ProjectName |
+//|                                      Copyright 2020, CompanyName |
+//|                                       http://www.companyname.net |
+//+------------------------------------------------------------------+
+#include <Trade/Trade.mqh>
+input double Lots = 0.1;
+input int TpPoints = 1000;
+input int SlPoints = 500;
+
+input string OpenTime = "16:30";
+input string CloseTime = "22:00";
+
+datetime lastSignal;
+ulong posTicket;
+
+CTrade trade;
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+int OnInit()
+  {
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+   datetime openTime = StringToTime(OpenTime);
+   datetime closeTime = StringToTime(CloseTime);
+   if(lastSignal != openTime && TimeCurrent() > openTime)
+     {
+      openTime = lastSignal;
+
+
+      Print("Open time reached...");
+      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+      ask = NormalizeDouble(ask,_Digits);
+      double tp = ask + TpPoints * _Point;
+      tp = NormalizeDouble(tp,_Digits);
+
+      double sl = ask - SlPoints * _Point;
+      sl = NormalizeDouble(sl,_Digits);
+
+      if(trade.Buy(Lots, _Symbol, ask, sl, tp, "Time Trader"))
+        {
+         posTicket = trade. ResultOrder();
+        }
+     }
+   if(TimeCurrent() > closeTime){
+      if(posTicket > 0)
+        {
+         if(PositionSelectByTicket(posTicket))
+           {
+            if(trade.PositionClose(posTicket))
+              {
+               posTicket = 0;
+              }
+           }
+         else
+           {
+            posTicket = 0;
+           }
+        }
+  }
+   //Comment("\n Severtime",TimeCurrent(),
+     //       "\n OpenTime",openTime,
+       //     "\nClose Time",closeTime,
+         //   "\n Ticket",posTicket);
+  }
+//+------------------------------------------------------------------+
