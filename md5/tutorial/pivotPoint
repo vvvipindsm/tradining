@@ -1,0 +1,72 @@
+//+------------------------------------------------------------------+
+//|                                                   pivotpoint.mq5 |
+//|                                  Copyright 2023, MetaQuotes Ltd. |
+//|                                             https://www.mql5.com |
+//+------------------------------------------------------------------+
+#property copyright "Copyright 2023, MetaQuotes Ltd."
+#property link      "https://www.mql5.com"
+#property version   "1.00"
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+  {
+//---
+
+//---
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+//---
+
+  }
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//| Trade function                                                   |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+  
+   double high1 = iHigh(_Symbol,PERIOD_D1,1);
+   double low1 = iLow(_Symbol,PERIOD_D1,1);
+   double close1 = iClose(_Symbol,PERIOD_D1,1);
+   datetime time1 = iTime(_Symbol,PERIOD_D1,0);
+   datetime time2 = time1 + PeriodSeconds(PERIOD_D1);
+   
+   double pivotPoint = (high1+ low1 + close1) / 3;
+   string objName = "Pivot Point";
+   createLine(objName, clrMediumBlue, time1, pivotPoint, time2, pivotPoint);
+
+   double r1 = pivotPoint * 2 - low1;
+   objName = "R1";
+   createLine(objName, clrLightBlue, time1, r1, time2, r1);
+   
+   double r2 = pivotPoint + high1 - low1;
+   objName = "R2";
+   createLine(objName, clrLightBlue, time1, r2, time2, r2);
+   
+   double s1 = pivotPoint * 2 - high1;
+   objName = "S1";
+   createLine(objName, clrCoral, time1, s1, time2, s1);
+   
+   double s2 = pivotPoint - (high1 - low1);
+   objName = "S2";
+   createLine(objName, clrCoral, time1, s2, time2, s2);
+
+  }
+//+------------------------------------------------------------------+
+void createLine(string objName, color clr, datetime time1, double price1, datetime time2, double price2)
+  {
+   ObjectDelete(0, objName);
+   ObjectCreate(0, objName, OBJ_TREND, 0, time1, price1, time2, price2);
+   ObjectSetInteger(0, objName, OBJPROP_COLOR, clr);
+   ObjectSetInteger(0, objName, OBJPROP_WIDTH, 5);
+  }
+//+------------------------------------------------------------------+
