@@ -1,0 +1,51 @@
+#include <Trade/Trade.mqh>
+
+input double Lots = 1;
+input int TpPoints = 1000;
+input int SlPoints = 1000;
+double lastBid;
+CTrade trade;
+
+int OnInit() {
+    return(INIT_SUCCEEDED);
+}
+void OnDeinit(const int reason) {
+}
+void OnTick() {
+    double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+        if (PositionsTotal() == 0) {
+            for (int i = ObjectsTotal(0,0,OBJ_TREND)-1; i >= 0; i--){
+                string name = ObjectName(0,1,0, OBJ_TREND);
+                if(StringFind(name, "RSLines") > -1){
+                    double price = ObjectGetDouble(0, name, OBJPROP_PRICE);
+                        color clr = (color)ObjectGetInteger (0, name, OBJPROP_COLOR);
+                            if (clr == clrRed) {
+                                    if(bid <price && lastBid >= price) {
+                                        double entry = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+                                        entry = NormalizeDouble(entry,_Digits);
+                                        double sl = entry - SlPoints * _Point;
+                                        sl = NormalizeDouble (sl,_Digits);
+                                        double tp = entry + TpPoints * _Point;
+                                        tp = NormalizeDouble(tp,_Digits);
+                                        trade. Buy (Lots, _Symbol, entry, sl, tp);
+                                    }
+                                }else if(clr == clrGreen) 
+                                {
+                                    if(bid > price && lastBid <= price){
+                                        double entry = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+                                        entry = NormalizeDouble(entry,_Digits);
+                                        
+                                        double sl = entry + SlPoints * _Point;
+                                        sl = NormalizeDouble(sl,_Digits);
+                                        double tp = entry - TpPoints * _Point;
+                                        tp = NormalizeDouble(tp,_Digits);
+                                        trade.Sell(Lots, _Symbol, entry, sl, tp);
+
+                                    }
+                                }
+                }
+
+            }
+        }
+    lastBid = bid;
+}

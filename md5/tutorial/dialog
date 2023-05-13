@@ -1,0 +1,88 @@
+//+------------------------------------------------------------------+
+//|                                                      ProjectName |
+//|                                      Copyright 2020, CompanyName |
+//|                                       http://www.companyname.net |
+//+------------------------------------------------------------------+
+#include <Controls\Dialog.mqh>
+#include <Controls\Button.mqh>
+#include <Controls\SpinEdit.mqh>
+
+#define PANEL_NAME "Demo App"
+#define PANEL_WIDTH 200
+
+#define PANEL_HEIGHT 250
+#define ROW_HEIGHT 20
+#define BTN1_NAME "BTN 1"
+
+#define BTN2_NAME "BTN 2"
+#define BTN3_NAME "BTN 3"
+#define EDIT1_NAME "Edit 1"
+CAppDialog app;
+
+CButton btn1;
+CSpinEdit edit1;
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+int OnInit()
+  {
+   app.Create(0, PANEL_NAME, 0, 50, 50, 50 + PANEL_WIDTH + 8, 50 + PANEL_HEIGHT);
+   btn1.Create(0, BTN1_NAME,0,0,0,0,0);
+   btn1.Width(PANEL_WIDTH/2);
+   btn1.Height(ROW_HEIGHT*2);
+   btn1.ColorBackground(clrLightGreen);
+   btn1.Text("Buy");
+   app.Add(btn1);
+
+   edit1.Create(0, EDIT1_NAME, 0, 0, ROW_HEIGHT*4, PANEL_WIDTH, ROW_HEIGHT*6);
+   edit1.MinValue(1);
+   edit1.MaxValue(5);
+   app.Add(edit1);
+
+   return(INIT_SUCCEEDED);
+  }
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+
+  }
+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+
+//Comment("Hitting");
+  }
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnChartEvent(
+   const int id,
+   const long &lparam,
+   const double  &dparam,
+   const string &sparam)
+  {
+
+   app.ChartEvent(id, lparam, dparam, sparam);
+
+   if(id == CHARTEVENT_OBJECT_CLICK)
+     {
+
+
+      if(sparam == btn1.Name())
+        {
+         double lots = edit1.Value();
+
+         Print("Hitting button buy",lots);
+        }
+     }
+  }
+
+//+------------------------------------------------------------------+

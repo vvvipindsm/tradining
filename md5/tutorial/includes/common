@@ -1,0 +1,159 @@
+
+
+#include <Trade/Trade.mqh>
+int Gett(int& a, int& b)
+  {
+   a= 10;
+   b =20;
+   return 13213;
+  }
+CTrade trade;
+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void StopLossTrailing(int eaMagic,double eaLots,double bid,int& positions,int& orders)
+  {
+
+   for(int i = PositionsTotal()-1; i >= 0; i--)
+     {
+      ulong posTicket = PositionGetTicket(i);
+      if(PositionSelectByTicket(posTicket))
+        {
+         if(PositionGetString(POSITION_SYMBOL) == _Symbol && PositionGetInteger(POSITION_MAGIC) == eaMagic)
+           {
+            positions = positions + 1;
+            if(PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY)
+              {
+               if(PositionGetDouble(POSITION_VOLUME) >= eaLots)
+                 {
+                  double tp = PositionGetDouble(POSITION_PRICE_OPEN) + (PositionGetDouble(POSITION_PRICE_OPEN) - PositionGetDouble(POSITION_SL));
+                  if(bid >= tp)
+                    {
+                     if(trade.PositionClosePartial(posTicket,NormalizeDouble(PositionGetDouble(POSITION_VOLUME) /2,2)))
+                       {
+                        double sl = PositionGetDouble(POSITION_PRICE_OPEN);
+                        sl = NormalizeDouble(sl,_Digits);
+                        if(trade.PositionModify(posTicket,sl,0))
+                          {
+                           Comment("Position modified");
+
+                          }
+
+                       }
+
+                    }
+                 }
+               else
+                 {
+                  int lowest  = iLowest(_Symbol,PERIOD_M5,MODE_LOW,3,1);
+                  double sl = iLow(_Symbol,PERIOD_M5,lowest);
+                  sl = NormalizeDouble(sl,_Digits);
+                  if(sl  > PositionGetDouble(POSITION_SL))
+                    {
+                     if(trade.PositionModify(posTicket,sl,0))
+                       {
+                        Comment("Position Modified");
+                       }
+                    }
+                 }
+              }
+            else
+               if(PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_SELL)
+                 {
+                  if(PositionGetDouble(POSITION_VOLUME) >= eaLots)
+                    {
+                     double tp = PositionGetDouble(POSITION_PRICE_OPEN) - (PositionGetDouble(POSITION_SL) - PositionGetDouble(POSITION_PRICE_OPEN));
+                     if(bid <= tp)
+                       {
+                        if(trade.PositionClosePartial(posTicket,NormalizeDouble(PositionGetDouble(POSITION_VOLUME) /2,2)))
+                          {
+                           double sl = PositionGetDouble(POSITION_PRICE_OPEN);
+                           sl = NormalizeDouble(sl,_Digits);
+                           if(trade.PositionModify(posTicket,sl,0))
+                             {
+                              Comment("OrderModified");
+                             }
+
+
+                          }
+
+                       }
+
+
+                    }
+                  else
+                    {
+                     int highest = iHighest(_Symbol, PERIOD_M5,MODE_HIGH, 3,1);
+                     double sl = iHigh(_Symbol, PERIOD_M5,highest);
+                     sl = NormalizeDouble(sl,_Digits);
+                     if(sl < PositionGetDouble(POSITION_SL))
+                       {
+                        if(trade.PositionModify(posTicket,sl,0))
+                          {
+                           Comment("Orer Modified");
+                          }
+
+                       }
+
+
+                    }
+                 }
+
+
+
+           }
+
+        }
+
+     }
+//poisition end
+//check order start
+
+
+   for(int i = OrdersTotal()-1; i >= 0; i--)
+     {
+      ulong orderTicket = OrderGetTicket(i);
+      if(OrderSelect(orderTicket))
+        {
+         if(OrderGetString(ORDER_SYMBOL) == _Symbol && OrderGetInteger(ORDER_MAGIC) == eaMagic)
+           {
+            if(OrderGetInteger(ORDER_TIME_SETUP) < TimeCurrent() - 30 * PeriodSeconds(PERIOD_M1))
+              {
+               trade.OrderDelete(orderTicket);
+              }
+
+            orders = orders + 1;
+
+           }
+
+        }
+
+     }
+  }
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+double calclots(double riskPercent, double slDistance)
+  {
+   double ticksize = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+   double tickvalue = SymbolInfoDouble(_Symbol,SYMBOL_TRADE_TICK_VALUE);
+   double lotstep = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+   if(ticksize == 0 || tickvalue==0|| lotstep== 0)
+     {
+      Print(__FUNCTION__,"> Lotsize cannot be calculated...");
+      return 0;
+     }
+   double riskMoney = AccountInfoDouble(ACCOUNT_BALANCE) * riskPercent / 100;
+   double moneyLotstep = (slDistance / ticksize) * tickvalue * lotstep;
+   if(moneyLotstep == 0)
+     {
+      Print(__FUNCTION__,"> Lotsize cannot be calculated...");
+      return 0;
+     }
+   double lots = MathFloor(riskMoney / moneyLotstep) * lotstep;
+   return lots;
+  }
+

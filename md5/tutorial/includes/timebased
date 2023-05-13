@@ -1,0 +1,54 @@
+//+------------------------------------------------------------------+
+//|                                                      ProjectName |
+//|                                      Copyright 2020, CompanyName |
+//|                                       http://www.companyname.net |
+//+------------------------------------------------------------------+
+
+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+bool NotVoltileMarket()
+  {
+
+   datetime LocalTime = TimeLocal();
+
+
+   MqlDateTime DateTimeStructure;
+
+   TimeToStruct(LocalTime,DateTimeStructure);
+  // Comment("\n Day ,",DateTimeStructure.day_of_week,"Hour : ",DateTimeStructure.hour);
+   if(DateTimeStructure.day_of_week ==4)
+     {
+      if(DateTimeStructure.hour >  15)
+         return false;
+     }
+   if(DateTimeStructure.day_of_week == 1 || DateTimeStructure.day_of_week == 5)
+      return false;
+   return true;
+  }
+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+
+//  int filterMonths[3] = { 2,3,5 };
+     
+  //   Comment(MonthFilter(filterMonths)?"Can trade":"Disabled for trading");
+bool MonthFilter(int &filterdMonths[])
+  {
+   MqlDateTime Time;
+   TimeLocal(Time);
+
+   bool status  = true;
+ 
+   for(int i = 0; i < ArraySize(filterdMonths); i++) {
+      if(Time.mon == filterdMonths[i]){
+         status = false;
+      }
+   }
+   return status;
+  }
+//+------------------------------------------------------------------+
