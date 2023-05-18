@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "everydaysameday": "cpp"
+        "everydaysameday": "cpp",
+        "timerelated": "cpp",
+        "pivotpoint": "cpp"
     }
 }

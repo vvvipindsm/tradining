@@ -1,0 +1,69 @@
+//+------------------------------------------------------------------+
+//|                                                      ProjectName |
+//|                                      Copyright 2020, CompanyName |
+//|                                       http://www.companyname.net |
+//+------------------------------------------------------------------+
+
+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+bool NotVoltileMarket()
+  {
+
+   datetime LocalTime = TimeLocal();
+
+
+   MqlDateTime DateTimeStructure;
+
+   TimeToStruct(LocalTime,DateTimeStructure);
+   Comment("\n week ,",showWeekDayString(DateTimeStructure.day_of_week));
+   if(DateTimeStructure.day_of_week ==4)
+     {
+      if(DateTimeStructure.hour >  15)
+         return false;
+     }
+   if(DateTimeStructure.day_of_week == 1 || DateTimeStructure.day_of_week == 5)
+      return false;
+   return true;
+  }
+  
+  string showWeekDayString(int day) {
+   if(day == 1) {
+     return "Monday";
+   }
+   else if(day == 2) {
+      return "Tuesday";
+   }
+   else if(day == 3) {
+      return "Wendesday";
+   }
+   else if(day == 4) {
+      return "Thuesday";
+   }
+   else if(day == 5){
+      return "Frienday";
+   }
+  return "sdfsd";
+  }
+
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+bool MonthFilter(int &filterdMonths[])
+  {
+   MqlDateTime Time;
+   TimeLocal(Time);
+
+   bool status  = true;
+ 
+   for(int i = 0; i < ArraySize(filterdMonths); i++) {
+      if(Time.mon == filterdMonths[i]){
+         status = false;
+      }
+   }
+   return status;
+  }
+//+------------------------------------------------------------------+

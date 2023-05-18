@@ -1,0 +1,174 @@
+
+//https://www.youtube.com/watch?v=HGrClh75CF8&t=1s
+#include <Trade/Trade.mqh>
+#include  <TimeBased.mqh>
+#include  <MarketCondition.mqh>
+//checking market trend
+int handleATR;
+
+input double Lots = 0.05;
+input double TpFactor = 0;
+input bool TslActive = true;
+input ENUM_TIMEFRAMES Timeframe = PERIOD_CURRENT;
+input int Periods = 10;
+input double Multiplier = 3.0;
+int stHandle;
+int totalBars;
+CTrade trade;
+ulong posTicket;
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+int OnInit()
+  {
+  //check market trand
+  
+   
+   totalBars = iBars(_Symbol, Timeframe);
+   stHandle = iCustom(_Symbol, Timeframe, "Supertrend.ex5", Periods, Multiplier);
+   return(INIT_SUCCEEDED);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+  {
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnTick()
+  {
+   datetime startTime = StringToTime("15:30");
+   datetime endTime = StringToTime("22:15");
+   
+   bool isMarketIsTranding = IsMarketIsTrending();
+    
+   int bars= iBars(_Symbol, Timeframe);
+   if(totalBars != bars)
+     {
+      totalBars = bars;
+      double st[];
+      CopyBuffer(stHandle,0,0,3, st);
+      double closel = iClose(_Symbol,Timeframe, 1);
+      double close2 = iClose(_Symbol, Timeframe, 2);
+      if(TslActive)
+        {
+
+         if(posTicket > 0)
+           {
+            if(PositionSelectByTicket(posTicket))
+              {
+               double sl = st[1];
+               sl = NormalizeDouble(sl,_Digits);
+               double posSl= PositionGetDouble(POSITION_SL);
+               double posTp = PositionGetDouble(POSITION_TP);
+               if(PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY)
+                 {
+                  if(sl > posSl)
+                    {
+                     if(trade.PositionModify(posTicket,sl, posTp))
+                       {
+                        Print(__FUNCTION__," > Pos #",posTicket," was modified..");
+                       }
+                    }
+                 }
+               else
+                  if(PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_SELL)
+                    {
+                     if(sl < posSl || posSl == 0)
+                       {
+                        if(trade.PositionModify(posTicket, sl, posTp))
+                          {
+                           Print(__FUNCTION__," > Pos #",posTicket," was modified..");
+                          }
+                       }
+                    }
+              }
+           }
+        }
+
+
+
+      if(closel> st[1] && close2 < st[0] && NotVoltileMarket() == true && isMarketIsTranding == true)
+        {
+         Print(__FUNCTION__,"> Buy Signal...");
+         if(posTicket > 0)
+           {
+            if(PositionSelectByTicket(posTicket))
+              {
+               if(PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_SELL)
+                 {
+                  if(trade.PositionClose(posTicket))
+                    {
+                     Print(__FUNCTION__," > Pos #",posTicket," was closed...");
+                    }
+                 }
+              }
+           }
+         double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+         ask = NormalizeDouble(ask,_Digits);
+         double sl = st[1];
+         sl = NormalizeDouble(sl,_Digits);
+
+         double tp = 0;
+         if(TpFactor > 0)
+            tp = ask + (ask- sl) * TpFactor;
+
+         tp = NormalizeDouble(tp,_Digits);
+        // if(currentTime >= startTime && currentTime <= endTime){
+         if(trade.Buy(Lots,_Symbol, ask, sl, tp))
+           {
+            if(trade.ResultRetcode() == TRADE_RETCODE_DONE)
+              {
+               posTicket = trade.ResultOrder();
+              }
+           }
+         //  }
+        }
+      else
+         if(closel <st[1] && close2 > st[0] && 1== 10 && isMarketIsTranding == true)
+           {
+            Print(__FUNCTION__,"> Sell Signal...");
+            if(posTicket > 0)
+              {
+               if(PositionSelectByTicket(posTicket))
+                 {
+                  if(PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY)
+                    {
+
+                     if(trade.PositionClose(posTicket))
+                       {
+                        Print("was modified");
+                       }
+
+                    }
+                 }
+              }
+            double bid = SymbolInfoDouble(_Symbol,SYMBOL_BID);
+            bid = NormalizeDouble(bid,_Digits);
+
+            double sl = st[1];
+            sl = NormalizeDouble(sl,_Digits);
+
+            double tp= 0;
+            if(TpFactor > 0)
+               tp = bid - (sl -bid) * TpFactor;
+            tp = NormalizeDouble(tp,_Digits);
+          //  if(currentTime >= startTime && currentTime <= endTime) {
+            if(trade.Sell(Lots,_Symbol,bid,sl,tp))
+              {
+               if(trade.ResultRetcode() == TRADE_RETCODE_DONE)
+                 {
+                  posTicket = trade.ResultOrder();
+                 }
+              }
+           //   }
+           }
+      Comment("ST Value [0]",st[0],
+              "\nST value [1],",st[1],
+              "\nST value [2]",st[2],
+              "\nPos Ticket:",posTicket);
+     }
+  }

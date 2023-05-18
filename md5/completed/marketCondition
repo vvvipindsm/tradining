@@ -1,0 +1,28 @@
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+bool IsMarketIsTrending()
+  {
+   int handleATR = iATR(_Symbol, _Period, 50);
+   //to do 
+   double threshold = 1;
+
+   double average_atr[];
+
+   
+   CopyBuffer(handleATR,0,0,2,average_atr);
+   
+   //Comment("Atr value",average_atr[0],"Not inside  threshold");
+
+   if(average_atr[0] < threshold )
+     {
+     // Comment("Atr value",average_atr[0],"Ranging market :",threshold * _Point);
+      return false;  // Market is ranging
+     }
+   else
+     {
+     
+      return true; // Market is trending
+     }
+  }
+//+------------------------------------------------------------------+
