@@ -11,7 +11,8 @@
 #include <Trade\SymbolInfo.mqh>
 #include <Trade\AccountInfo.mqh>
 #include <Trade\PositionInfo.mqh>
-#include "Risk_Manager.mqh"
+
+#include <Risk_Manager.mqh>
 
 CTrade *Trade;
 CSymbolInfo SymbolInfo;

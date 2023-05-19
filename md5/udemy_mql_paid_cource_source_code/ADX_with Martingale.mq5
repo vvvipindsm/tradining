@@ -8,7 +8,8 @@
 #property version   "1.00"
 
 #include <Trade\Trade.mqh>
-#include "Risk_Manager.mqh"
+
+#include <Risk_Manager.mqh>
 
 CTrade *Trade;
 
