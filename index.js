@@ -20,7 +20,7 @@ app.use(cors());
 app.use(bodyparser.urlencoded({extended:false}))
 app.use(bodyparser.json())
 app.use("/api/order", order_route);
-app.use("/api/t", tutorial_route);
+app.use("/api/data_analysis", tutorial_route);
 app.use("/api/trades", trades_route);
 app.use("/api/stock_pickes", stockPicks);
 app.set('view engine', 'ejs')

@@ -1,2 +1,4 @@
 .env
 node_modules
+config
+dn.config.js

@@ -1,10 +1,10 @@
 const express = require("express");
-const { findAll } = require("../controllers/tutorial.controller");
+const { findAll,insertTODb } = require("../controllers/tutorial.controller");
 const { authMiddle } = require("../middleware/auth");
 const router = express.Router();
 
-router.get("/find", findAll);
+router.post("/cot", findAll);
 
-
+router.post("/cotInsert", insertTODb);
 
 module.exports = router;
