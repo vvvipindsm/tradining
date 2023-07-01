@@ -1,0 +1,57 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © ZenAndTheArtOfTrading / www.PineScriptMastery.com
+// @version=5
+strategy("Strategy Orders", overlay=true)
+
+// Import Zen Library
+import ZenAndTheArtOfTrading/ZenLibrary/2 as zen
+
+// Get user input
+lookback    = input.int(title="Lookback", defval=7)
+multiplier  = input.float(title="ATR Multiplier", defval=1.0)
+rr          = input.float(title="Risk:Reward", defval=1.0)
+
+// Get ATR value
+atr = ta.atr(14)
+
+// Detect candle patterns
+bullEC = zen.isBullishEC()
+bearEC = zen.isBearishEC()
+
+// Detect buy and sell signals with filters
+buySignal  = bullEC and low == ta.lowest(low, lookback) and not na(atr) and strategy.position_size == 0 and barstate.isconfirmed
+sellSignal = bearEC and high == ta.highest(high, lookback) and not na(atr) and strategy.position_size == 0 and barstate.isconfirmed
+
+// Calculate stops & targets
+longStop  = ta.lowest(low, lookback) - (atr * multiplier)
+shortStop = ta.highest(high, lookback) + (atr * multiplier)
+longStopDistance  = close - longStop
+shortStopDistance = shortStop - close
+longTarget  = close + (longStopDistance * rr)
+shortTarget = close - (shortStopDistance * rr)
+
+// Save stops & targets
+var t_stop = 0.0
+var t_target = 0.0
+
+// Enter buy orders
+if buySignal
+    strategy.entry(id="Long", direction=strategy.long)
+    t_stop := longStop
+    t_target := longTarget
+
+// Enter sell orders
+if sellSignal
+    strategy.entry(id="Short", direction=strategy.short)
+    t_stop := shortStop
+    t_target := shortTarget
+
+// Manage exit orders (TP & SL)
+strategy.exit(id="Long Exit", from_entry="Long", limit=t_target, stop=t_stop, when=strategy.position_size > 0)
+strategy.exit(id="Short Exit", from_entry="Short", limit=t_target, stop=t_stop, when=strategy.position_size < 0)
+
+// Draw data to chart
+plotshape(buySignal, style=shape.triangleup, color=color.green, location=location.belowbar)
+plotshape(sellSignal, style=shape.triangledown, color=color.red, location=location.abovebar)
+plot(strategy.position_size != 0 ? t_stop : na, color=color.red, style=plot.style_linebr)
+plot(strategy.position_size != 0 ? t_target : na, color=color.green, style=plot.style_linebr)

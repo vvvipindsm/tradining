@@ -1,0 +1,2 @@
+positionSize = math.floor((strategy.equity * (riskPerTrade/100)) / (close - t_stop))
+strategy.entry(id="Long", direction=strategy.long, qty=positionSize)

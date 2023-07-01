@@ -5,6 +5,18 @@ const seq = require("sequelize");
 const yfData = require("../csv/eurusd");
 const moment = require("moment");
 const cotData = require("../csv/cotData");
+
+exports.getAllCotReport = async (req, res) => {
+  //chart data start date should be greater than db date
+
+  const cotDbData = await db.sequelize.query("SELECT * FROM cot_report", {
+    type: seq.QueryTypes.SELECT,
+  });
+
+
+  return res.json(cotDbData);
+};
+
 // Retrieve all Tutorials from the database.
 exports.findAll = async (req, res) => {
   //chart data start date should be greater than db date

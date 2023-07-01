@@ -21,14 +21,14 @@ input int EAMagic = 767767676;
 input int Slippage = 5;
 
 input group "KCC INPUTS"
-input int KCCPeriod = 100;
-input int KCCDeviation = 5;
-input ENUM_MA_METHOD KCCMode = MODE_SMA;
-input ENUM_APPLIED_PRICE KCCAppliedPrice = PRICE_TYPICAL;
+input int KCCPeriod = 100; //todo make as enum 100,50,20,200
+input int KCCDeviation = 5; // todo make as 5,3,6,7,3,2 
+input ENUM_MA_METHOD KCCMode = MODE_SMA; //todo make as enum MODE_SMA
+input ENUM_APPLIED_PRICE KCCAppliedPrice = PRICE_TYPICAL; //todo make enum PRICE_WEIGHTED,PRICE_TYPICALPRICE_MEDIAN
 
 input group "TRADE MANAGEMENT"
-input double ProfitTarget = 3;
-input double HedgeProfitTarget = 1;
+input double ProfitTarget = 3; //todo enum 3,4,5,6,2
+input double HedgeProfitTarget = 1; //todo eneum .5,1,1.5
 input int GridDistance = 7;
 input double LotMultiplier = 3;
 input double HedgeLotMultiplier = 1.5;

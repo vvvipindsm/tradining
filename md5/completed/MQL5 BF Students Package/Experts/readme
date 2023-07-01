@@ -1,0 +1,52 @@
+varible uses
+maHandle     						: moving avarage indicator ID
+ATRHandle						: Atr indicator ID
+OldNumBars=0	                              : candle count previoue state 
+BarsAfterBuy=0
+BarAfterSell=0
+MyDigit  			  Digit of current symbol Ex. 2
+MaBuffer[]		:  Moving Avg data
+ATRBuffer[]		:  Atr indicator array of data
+CHigh			 : like bbband based moving (Upper lower decide basd based ATR Deviation)
+CLow[]			: lower band like bbband based moving (Upper lower decide basd based ATR Deviation)
+PriceClose[]		: Close data's bufffer array 
+ASK				:  last buy by function firstBuy Or firstBuyGrid
+BID				:last sell by function firstSell Or firstSellyGrid
+NExtBuyPrice
+NextSellPirce
+GridDistancePoints
+NextBuyLot
+MyPoint			: Point of curren symbol Ex 000.1
+LastBuyPrice
+LastSellPrice; 
+HaveBuyHedge = false,
+HaveSellHedge = false
+
+Function Doint 
+TakeProfit 			:checking if get target profit 
+					if ST tralining enable then TrailingSL function
+ 					else close the orders
+NewBarPreset                  : checking new is new bar or not 
+FirstBuySignal :              :   the last candle should be above the lower band
+FirstBuy  		:   		1.checking is buy get
+					store the buy price to ASK variable
+					if succesfully trade happend Then
+					 update variable that 
+						BarsAfterBuy : for avoid trade then candle
+						NextBuyPrice  : this for make minimum gap b/w trade position with next trade
+GridBuySignal 		: the function will invoke if one trade atleat happend and not over the maximum list and same as firstBuyFunction
+HedgingAllBuy			
+LotSize  				: calucalte lot size based account balance Ex AccountBal 100, BalanceIncrease : 50 VolumeIncrease : 0.01 100/50 = 2*0.01
+TakeProfit    :
+TrailingTP
+
+TakeHeggeProfit
+
+calculayeKCC
+
+
+
+
+
+
+
